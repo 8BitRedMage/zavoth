@@ -8,79 +8,343 @@ generator client {
 }
 
 model User {
-  id                        String          @id @default(uuid())
-  createdAt                 DateTime        @default(now())
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
 
-  email                     String?         @unique
-  username                  String?         @unique
-  isAdmin                   Boolean         @default(false)
+  email    String? @unique
+  username String? @unique
+  isAdmin  Boolean @default(false)
 
-  paymentProcessorUserId    String?         @unique
-  lemonSqueezyCustomerPortalUrl String?     // You can delete this if you're not using Lemon Squeezy as your payments processor.
-  subscriptionStatus        String?         // 'active', 'cancel_at_period_end', 'past_due', 'deleted'
-  subscriptionPlan          String?         // 'hobby', 'pro'
-  datePaid                  DateTime?
-  credits                   Int             @default(3)
+  paymentProcessorUserId        String?   @unique
+  lemonSqueezyCustomerPortalUrl String? // You can delete this if you're not using Lemon Squeezy as your payments processor.
+  subscriptionStatus            String? // 'active', 'cancel_at_period_end', 'past_due', 'deleted'
+  subscriptionPlan              String? // 'hobby', 'pro'
+  datePaid                      DateTime?
+  credits                       Int       @default(3)
 
-  contactFormMessages       ContactFormMessage[]
-  files                     File[]
+  contactFormMessages ContactFormMessage[]
+  files               File[]
+
+  memberships         Membership[]
+  portfolioItemsAdded PortfolioItem[]
+  touchpoints         Touchpoint[]
+  manualImports       ManualImport[]
 }
 
 model File {
-  id                        String          @id @default(uuid())
-  createdAt                 DateTime        @default(now())
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
 
-  user                      User            @relation(fields: [userId], references: [id])
-  userId                    String
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
 
-  name                      String
-  type                      String
-  s3Key                     String
+  name  String
+  type  String
+  s3Key String
+
+  touchpoint   Touchpoint?   @relation(fields: [touchpointId], references: [id], onDelete: SetNull)
+  touchpointId String?
+  manualImport ManualImport?
 }
 
 model DailyStats {
-  id                               Int             @id @default(autoincrement())
-  date                             DateTime        @default(now()) @unique
+  id   Int      @id @default(autoincrement())
+  date DateTime @unique @default(now())
 
-  totalViews                       Int             @default(0)
-  prevDayViewsChangePercent        String          @default("0")
-  userCount                        Int             @default(0)
-  paidUserCount                    Int             @default(0)
-  userDelta                        Int             @default(0)
-  paidUserDelta                    Int             @default(0)
-  totalRevenue                     Float           @default(0)
-  totalProfit                      Float           @default(0)
+  totalViews                Int    @default(0)
+  prevDayViewsChangePercent String @default("0")
+  userCount                 Int    @default(0)
+  paidUserCount             Int    @default(0)
+  userDelta                 Int    @default(0)
+  paidUserDelta             Int    @default(0)
+  totalRevenue              Float  @default(0)
+  totalProfit               Float  @default(0)
 
-  sources                          PageViewSource[]
+  sources PageViewSource[]
 }
 
 model PageViewSource {
+  name String
+  date DateTime @default(now())
+
+  dailyStats   DailyStats? @relation(fields: [dailyStatsId], references: [id])
+  dailyStatsId Int?
+
+  visitors Int
+
   @@id([date, name])
-  name                     String
-  date                     DateTime        @default(now())
-
-  dailyStats               DailyStats?     @relation(fields: [dailyStatsId], references: [id])
-  dailyStatsId             Int?
-
-  visitors                 Int
 }
 
 model Logs {
-  id                       Int             @id @default(autoincrement())
-  createdAt                DateTime        @default(now())
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
 
-  message                  String
-  level                    String
+  message String
+  level   String
 }
 
 model ContactFormMessage {
-  id                        String          @id @default(uuid())
-  createdAt                 DateTime        @default(now())
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
 
-  user                      User            @relation(fields: [userId], references: [id])
-  userId                    String
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
 
-  content                   String
-  isRead                    Boolean         @default(false)
-  repliedAt                 DateTime?
+  content   String
+  isRead    Boolean   @default(false)
+  repliedAt DateTime?
+}
+
+// ---------------------------------------------------------------------------
+// Competitive intelligence
+//
+// Entities (companies) are global and shared across tenants; everything a team
+// says *about* an entity (portfolios, tags, touchpoints, manual imports) is
+// scoped to an Organization.
+// ---------------------------------------------------------------------------
+
+enum OrgRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+model Organization {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name String
+
+  members       Membership[]
+  portfolios    Portfolio[]
+  tags          Tag[]
+  touchpoints   Touchpoint[]
+  manualImports ManualImport[]
+}
+
+model Membership {
+  createdAt DateTime @default(now())
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  orgId        String
+
+  role OrgRole @default(MEMBER)
+
+  @@id([userId, orgId])
+  @@index([orgId])
+}
+
+enum PortfolioKind {
+  COMPETITOR
+  VENDOR
+  INVESTOR
+  PARTNER
+  CUSTOM
+}
+
+model Portfolio {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  orgId        String
+
+  name        String
+  kind        PortfolioKind @default(COMPETITOR)
+  description String?
+
+  items PortfolioItem[]
+
+  @@index([orgId])
+}
+
+enum PortfolioTier {
+  PRIMARY
+  SECONDARY
+  WATCH
+}
+
+// A team's view of a global entity within one portfolio.
+model PortfolioItem {
+  addedAt DateTime @default(now())
+
+  portfolio   Portfolio     @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  portfolioId String
+  entity      TrackedEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  entityId    String
+  addedBy     User          @relation(fields: [addedById], references: [id])
+  addedById   String
+
+  tier  PortfolioTier?
+  notes String?
+
+  @@id([portfolioId, entityId])
+  @@index([entityId])
+}
+
+// Global, deduped by domain. `parent` models corporate structure (sub-brands);
+// per-team groupings come later as EntityGroup.
+// Named TrackedEntity rather than Entity because Wasp's generated SDK has an
+// internal `_Entity` type that a model called `Entity` collides with.
+model TrackedEntity {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name    String
+  domain  String   @unique
+  aliases String[] @default([])
+  logoUrl String?
+
+  parent   TrackedEntity?  @relation("EntityHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  parentId String?
+  children TrackedEntity[] @relation("EntityHierarchy")
+
+  ticker      String?
+  exchange    String?
+  careersUrl  String?
+  atsProvider String? // greenhouse | lever | ashby | workable | unknown
+  subreddits  String[]  @default([])
+  enrichedAt  DateTime?
+
+  trackers       Tracker[]
+  portfolioItems PortfolioItem[]
+  tags           EntityTag[]
+  touchpoints    Touchpoint[]
+  manualImports  ManualImport[]
+
+  @@index([parentId])
+}
+
+enum Signal {
+  WEBSITE
+  HIRING
+  SENTIMENT
+  STOCK
+  NEWS
+}
+
+enum TrackerStatus {
+  OK
+  ERROR
+  RATE_LIMITED
+  MANUAL_ONLY
+}
+
+// One row per (entity, signal): collector config plus scheduling state.
+model Tracker {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  entity   TrackedEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  entityId String
+
+  signal      Signal
+  enabled     Boolean        @default(true)
+  config      Json           @default("{}")
+  intervalMin Int
+  nextRunAt   DateTime       @default(now())
+  lastRunAt   DateTime?
+  lastStatus  TrackerStatus?
+  lastError   String?
+
+  @@unique([entityId, signal])
+  @@index([enabled, nextRunAt])
+}
+
+model Tag {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  orgId        String
+
+  name  String
+  color String?
+
+  entities EntityTag[]
+
+  @@unique([orgId, name])
+}
+
+model EntityTag {
+  tag      Tag           @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId    String
+  entity   TrackedEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  entityId String
+
+  @@id([tagId, entityId])
+  @@index([entityId])
+}
+
+enum TouchpointKind {
+  CALL
+  MEETING
+  EMAIL
+  DEMO
+  NOTE
+  WON_DEAL
+  LOST_DEAL
+}
+
+// Manually logged interactions. Org-scoped and never shared across tenants.
+model Touchpoint {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization  @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  orgId        String
+  entity       TrackedEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  entityId     String
+  author       User          @relation(fields: [authorId], references: [id])
+  authorId     String
+
+  kind       TouchpointKind @default(NOTE)
+  occurredAt DateTime
+  title      String
+  body       String?
+
+  files File[]
+
+  @@index([orgId, entityId, occurredAt])
+}
+
+enum ManualImportStatus {
+  PENDING
+  PROCESSED
+  FAILED
+}
+
+// User-supplied data for signals we can't (or won't) collect automatically.
+// Processed by a job into the same normalized rows the collectors produce.
+model ManualImport {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+
+  organization Organization  @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  orgId        String
+  entity       TrackedEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  entityId     String
+  createdBy    User          @relation(fields: [createdById], references: [id])
+  createdById  String
+
+  signal     Signal
+  capturedAt DateTime // when the user says the data is from
+  file       File?    @relation(fields: [fileId], references: [id], onDelete: SetNull)
+  fileId     String?  @unique
+  text       String?
+
+  status      ManualImportStatus @default(PENDING)
+  error       String?
+  processedAt DateTime?
+
+  @@index([entityId, signal])
+  @@index([status])
 }
