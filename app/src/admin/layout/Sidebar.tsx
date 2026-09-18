@@ -11,7 +11,7 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router";
 import { Link, routes } from "wasp/client/router";
-import Logo from "../../client/static/logo.svg";
+import Logo from "../../client/static/zavoth-logo.svg";
 import { cn } from "../../client/utils";
 import { SidebarLinkGroup } from "./SidebarLinkGroup";
 
@@ -81,7 +81,7 @@ export function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
       {/* <!-- SIDEBAR HEADER --> */}
       <div className="py-5.5 lg:py-6.5 flex items-center justify-between gap-2 px-6">
         <Link to={routes.LandingPageRoute.to}>
-          <img src={Logo} alt="Logo" width={50} />
+          <img src={Logo} alt="Zavoth" width={50} />
         </Link>
 
         <button

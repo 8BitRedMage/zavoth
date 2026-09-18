@@ -1,5 +1,15 @@
-import { action, query, type Spec } from "@wasp.sh/spec";
+import { action, page, query, route, type Spec } from "@wasp.sh/spec";
 
+import { PortfoliosPage } from "./client/PortfoliosPage" with { type: "ref" };
+import {
+  getManualSources,
+  recordManualData,
+  setEntityProfileUrl,
+} from "./manualSources/operations" with { type: "ref" };
+import {
+  lookUpEntityFootprint,
+  saveEntityFootprint,
+} from "./footprint/operations" with { type: "ref" };
 import {
   addEntityToPortfolio,
   createOrganization,
@@ -18,10 +28,17 @@ import {
   setEntityTags,
   updateEntity,
   updatePortfolio,
+  updatePortfolioItem,
   updateTouchpoint,
 } from "./operations" with { type: "ref" };
 
 export const competitiveSpec: Spec = [
+  route(
+    "PortfoliosRoute",
+    "/portfolios",
+    page(PortfoliosPage, { authRequired: true }),
+  ),
+
   // Organizations
   query(getMyOrganizations, { entities: ["Membership", "Organization"] }),
   action(createOrganization, { entities: ["Organization", "Membership"] }),
@@ -44,6 +61,9 @@ export const competitiveSpec: Spec = [
       "Tracker",
     ],
   }),
+  action(updatePortfolioItem, {
+    entities: ["Membership", "PortfolioItem"],
+  }),
   action(removeEntityFromPortfolio, {
     entities: ["Membership", "PortfolioItem"],
   }),
@@ -60,6 +80,25 @@ export const competitiveSpec: Spec = [
   }),
   action(updateEntity, {
     entities: ["Membership", "TrackedEntity", "Tracker"],
+  }),
+
+  // Footprint lookup
+  action(lookUpEntityFootprint, {
+    entities: ["Membership", "PortfolioItem", "TrackedEntity"],
+  }),
+  action(saveEntityFootprint, {
+    entities: ["Membership", "PortfolioItem", "TrackedEntity", "Tracker"],
+  }),
+
+  // Manual sources: platforms that forbid bots, read by a person instead
+  query(getManualSources, {
+    entities: ["Membership", "PortfolioItem", "TrackedEntity", "ManualImport"],
+  }),
+  action(recordManualData, {
+    entities: ["Membership", "PortfolioItem", "ManualImport"],
+  }),
+  action(setEntityProfileUrl, {
+    entities: ["Membership", "PortfolioItem", "TrackedEntity"],
   }),
 
   // Tags

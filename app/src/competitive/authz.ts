@@ -1,13 +1,6 @@
 import { OrgRole, type Membership } from "@prisma/client";
 import { HttpError, prisma } from "wasp/server";
-
-// Higher index = more privilege.
-const ROLE_RANK: Record<OrgRole, number> = {
-  [OrgRole.VIEWER]: 0,
-  [OrgRole.MEMBER]: 1,
-  [OrgRole.ADMIN]: 2,
-  [OrgRole.OWNER]: 3,
-};
+import { hasOrgRole } from "./roles";
 
 type OperationContext = { user?: { id: string } | null };
 
@@ -32,7 +25,7 @@ export async function requireOrgMember(
     throw new HttpError(403, "You are not a member of this organization");
   }
 
-  if (ROLE_RANK[membership.role] < ROLE_RANK[minRole]) {
+  if (!hasOrgRole(membership.role, minRole)) {
     throw new HttpError(
       403,
       `This action requires the ${minRole} role or higher`,

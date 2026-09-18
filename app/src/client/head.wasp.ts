@@ -1,18 +1,20 @@
 import { type App } from "@wasp.sh/spec";
 
 export const head: App["head"] = [
-  "<link rel='icon' href='/favicon.ico' />",
+  "<link rel='icon' href='/favicon.ico' sizes='48x48' />",
+  "<link rel='icon' href='/favicon.svg' type='image/svg+xml' />",
+  "<link rel='apple-touch-icon' href='/apple-touch-icon.png' />",
 
   "<link rel='preconnect' href='https://fonts.googleapis.com' />",
   "<link rel='preconnect' href='https://fonts.gstatic.com' crossOrigin='anonymous' />",
 
   "<meta name='description' content='Your apps main description and features.' />",
-  "<meta name='author' content='Your (App) Name' />",
+  "<meta name='author' content='Zavoth' />",
   "<meta name='keywords' content='saas, solution, product, app, service' />",
 
   "<meta property='og:type' content='website' />",
-  "<meta property='og:title' content='Your Open SaaS App' />",
-  "<meta property='og:site_name' content='Your Open SaaS App' />",
+  "<meta property='og:title' content='Zavoth' />",
+  "<meta property='og:site_name' content='Zavoth' />",
   "<meta property='og:url' content='https://your-saas-app.com' />",
   "<meta property='og:description' content='Your apps main description and features.' />",
   "<meta property='og:image' content='https://your-saas-app.com/public-banner.webp' />",

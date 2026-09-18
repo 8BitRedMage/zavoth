@@ -14,7 +14,7 @@ import { throttleWithTrailingInvocation } from "../../../shared/utils";
 import { UserDropdown } from "../../../user/UserDropdown";
 import { UserMenuItems } from "../../../user/UserMenuItems";
 import { useIsLandingPage } from "../../hooks/useIsLandingPage";
-import logo from "../../static/logo.svg";
+import logo from "../../static/zavoth-logo.svg";
 import { cn } from "../../utils";
 import { DarkModeSwitcher } from "../DarkModeSwitcher";
 import { Announcement } from "./Announcement";
@@ -87,7 +87,7 @@ export function NavBar({
                     },
                   )}
                 >
-                  Your SaaS
+                  Zavoth
                 </span>
               </WaspRouterLink>
 
@@ -180,7 +180,7 @@ function NavBarMobileMenu({
           <SheetHeader>
             <SheetTitle className="flex items-center">
               <WaspRouterLink to={routes.LandingPageRoute.to}>
-                <span className="sr-only">Your SaaS</span>
+                <span className="sr-only">Zavoth</span>
                 <NavLogo isScrolled={false} />
               </WaspRouterLink>
             </SheetTitle>
@@ -252,7 +252,7 @@ function NavLogo({ isScrolled }: { isScrolled: boolean }) {
         "size-7": isScrolled,
       })}
       src={logo}
-      alt="Your SaaS App"
+      alt=""
     />
   );
 }

@@ -10,15 +10,6 @@ function ComingSoon({ title, blurb }: { title: string; blurb: string }) {
   );
 }
 
-export function PortfoliosPage() {
-  return (
-    <ComingSoon
-      title="Portfolios"
-      blurb="Group the companies you track into competitor, vendor and investor portfolios."
-    />
-  );
-}
-
 export function AnalyticsPage() {
   return (
     <ComingSoon

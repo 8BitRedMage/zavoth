@@ -5,6 +5,7 @@ import { NotFoundPage } from "./src/client/components/NotFoundPage" with { type:
 import { serverEnvValidationSchema } from "./src/env" with { type: "ref" };
 import { LandingPage } from "./src/landing-page/LandingPage" with { type: "ref" };
 import { seedMockUsers } from "./src/server/scripts/dbSeeds" with { type: "ref" };
+import { seedBookWritingCompetitors } from "./src/server/scripts/seedBookWritingCompetitors" with { type: "ref" };
 
 import { adminSpec } from "./src/admin/admin.wasp";
 import { analyticsSpec } from "./src/analytics/analytics.wasp";
@@ -16,11 +17,12 @@ import { fileUploadSpec } from "./src/file-upload/file-upload.wasp";
 import { paymentSpec } from "./src/payment/payment.wasp";
 import { emailSender } from "./src/server/emailSender.wasp";
 import { userSpec } from "./src/user/user.wasp";
+import { voiceSpec } from "./src/voice/voice.wasp";
 
 export default app({
   name: "OpenSaaS",
   wasp: { version: "^0.25.0" },
-  title: "My Open SaaS App",
+  title: "Zavoth",
   head,
   auth: authConfig,
   db: {
@@ -28,6 +30,9 @@ export default app({
     seeds: [
       // Populates the database with a bunch of fake users to work with during development.
       seedMockUsers,
+      // Fills the oldest organization's competitors portfolio with real
+      // book-writing software companies and invented data.
+      seedBookWritingCompetitors,
     ],
   },
   client: {
@@ -46,6 +51,7 @@ export default app({
     userSpec,
     dashboardSpec,
     competitiveSpec,
+    voiceSpec,
     paymentSpec,
     fileUploadSpec,
     analyticsSpec,

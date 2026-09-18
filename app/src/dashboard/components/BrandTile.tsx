@@ -17,7 +17,7 @@ export function BrandTile({ brand }: { brand: BrandTileData }) {
               {brand.name}
             </p>
             <p className="text-console-muted font-mono text-[10px] uppercase tracking-[0.5px]">
-              {brand.stage}
+              {brand.category}
             </p>
           </div>
         </div>

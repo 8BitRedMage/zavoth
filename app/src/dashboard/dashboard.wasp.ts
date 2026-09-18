@@ -4,7 +4,6 @@ import { DashboardPage } from "./DashboardPage" with { type: "ref" };
 import {
   AnalyticsPage,
   IntegrationsPage,
-  PortfoliosPage,
   ReportsPage,
 } from "./ComingSoonPages" with { type: "ref" };
 
@@ -13,11 +12,6 @@ export const dashboardSpec: Spec = [
     "DashboardRoute",
     "/dashboard",
     page(DashboardPage, { authRequired: true }),
-  ),
-  route(
-    "PortfoliosRoute",
-    "/portfolios",
-    page(PortfoliosPage, { authRequired: true }),
   ),
   route(
     "AnalyticsRoute",

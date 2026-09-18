@@ -10,6 +10,7 @@ import type {
   TrackedEntity,
   Organization,
   Portfolio,
+  PortfolioItem,
   Tag,
   Touchpoint,
 } from "wasp/entities";
@@ -32,6 +33,7 @@ import type {
   SetEntityTags,
   UpdateEntity,
   UpdatePortfolio,
+  UpdatePortfolioItem,
   UpdateTouchpoint,
 } from "wasp/server/operations";
 import * as z from "zod";
@@ -280,6 +282,37 @@ export const addEntityToPortfolio: AddEntityToPortfolio<
     });
 
     return entity;
+  });
+};
+
+const updatePortfolioItemInputSchema = z.object({
+  orgId: orgIdSchema,
+  portfolioId: idSchema,
+  entityId: idSchema,
+  tier: z.nativeEnum(PortfolioTier).nullable().optional(),
+  notes: z.string().trim().max(2000).nullable().optional(),
+});
+
+/** Edits the team's own view of a company: its tier and notes in one portfolio. */
+export const updatePortfolioItem: UpdatePortfolioItem<
+  z.infer<typeof updatePortfolioItemInputSchema>,
+  PortfolioItem
+> = async (rawArgs, context) => {
+  const { orgId, portfolioId, entityId, tier, notes } =
+    ensureArgsSchemaOrThrowHttpError(updatePortfolioItemInputSchema, rawArgs);
+  await requireOrgMember(context, orgId, OrgRole.MEMBER);
+
+  const { count } = await context.entities.PortfolioItem.updateMany({
+    where: { portfolioId, entityId, portfolio: { orgId } },
+    // An empty note is a cleared note.
+    data: { tier, notes: notes === "" ? null : notes },
+  });
+  if (count === 0) {
+    throw new HttpError(404, "Company is not in this portfolio");
+  }
+
+  return context.entities.PortfolioItem.findUniqueOrThrow({
+    where: { portfolioId_entityId: { portfolioId, entityId } },
   });
 };
 

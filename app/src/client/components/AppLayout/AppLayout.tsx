@@ -1,5 +1,6 @@
 import { ReactNode, useState } from "react";
 import { useAuth } from "wasp/client/auth";
+import { VoiceChatWidget } from "../../../voice/client/VoiceChatWidget";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { cn } from "../../utils";
 import { Sheet, SheetContent, SheetTitle } from "../ui/sheet";
@@ -54,6 +55,8 @@ export function AppLayout({ children }: { children: ReactNode }) {
 
         <main className="min-w-0 flex-1 overflow-y-auto">{children}</main>
       </div>
+
+      {user && <VoiceChatWidget />}
     </div>
   );
 }

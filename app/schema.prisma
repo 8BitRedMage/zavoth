@@ -211,6 +211,10 @@ model TrackedEntity {
   atsProvider String? // greenhouse | lever | ashby | workable | unknown
   subreddits  String[]  @default([])
   enrichedAt  DateTime?
+  // The company's page on platforms that forbid bots (LinkedIn, G2, ...),
+  // keyed by platform id. Only ever opened by a person in their own browser;
+  // see src/competitive/manualSources.
+  profileUrls Json      @default("{}")
 
   trackers       Tracker[]
   portfolioItems PortfolioItem[]
@@ -340,6 +344,10 @@ model ManualImport {
   file       File?    @relation(fields: [fileId], references: [id], onDelete: SetNull)
   fileId     String?  @unique
   text       String?
+  // Set when a person read the numbers off a platform we do not collect from
+  // and reported them: the platform id and the values, keyed by metric.
+  source     String?
+  data       Json?
 
   status      ManualImportStatus @default(PENDING)
   error       String?
@@ -347,4 +355,5 @@ model ManualImport {
 
   @@index([entityId, signal])
   @@index([status])
+  @@index([orgId, entityId, source, capturedAt])
 }
