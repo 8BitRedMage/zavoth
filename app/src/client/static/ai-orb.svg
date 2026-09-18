@@ -1,0 +1,21 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="ai-orb">
+<circle id="ring-80" cx="40" cy="40" r="39.25" stroke="#00E587" stroke-opacity="0.12" stroke-width="1.5"/>
+<circle id="ring-60" cx="40" cy="40" r="29.25" stroke="#00E587" stroke-opacity="0.25" stroke-width="1.5"/>
+<circle id="ring-40" cx="40" cy="40" r="19" stroke="#00E587" stroke-opacity="0.45" stroke-width="2"/>
+<g id="core-glow" filter="url(#filter0_d_0_112)">
+<circle cx="40" cy="40" r="12" fill="#00E587"/>
+</g>
+</g>
+<defs>
+<filter id="filter0_d_0_112" x="8" y="8" width="64" height="64" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset/>
+<feGaussianBlur stdDeviation="10"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0.898 0 0 0 0 0.529 0 0 0 0.5 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_112"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_112" result="shape"/>
+</filter>
+</defs>
+</svg>
